@@ -128,7 +128,7 @@ Environment Variables
 
 Note:
 
-- Above example will backup files in bucket called `backup` at location `frappe-bench-v12/site.name.com/DATE_TIME/DATE_TIME-site_name_com-{filetype}.{extension}`,
+- Above example will backup files in bucket called `backup` at location `frappe-bench-v13/site.name.com/DATE_TIME/DATE_TIME-site_name_com-{filetype}.{extension}`,
 - example DATE_TIME: 20200325_042020.
 - example filetype: database, files or private-files
 - example extension: sql.gz or tar
@@ -266,8 +266,25 @@ Environment Variables needed:
 - `DB_ROOT_USER`: MariaDB/PostgreSQL Root user.
 - `MYSQL_ROOT_PASSWORD`: Root User password for MariaDB.
 - `FORCE=1`: optional variable which force deletion of the same site.
-- `NO_BACKUP=1`: option variable to skip the process of taking backup before deleting the site. 
+- `NO_BACKUP=1`: option variable to skip the process of taking backup before deleting the site.
 
 Environment Variables for PostgreSQL only:
 
 - `POSTGRES_PASSWORD`: Password for `postgres`. The database root user.
+
+## Migrate Site
+
+```sh
+# Migrate ERPNext site
+docker run \
+    -e "MAINTENANCE_MODE=1" \
+    -v <project-name>_sites-vol:/home/frappe/frappe-bench/sites \
+    -v <project-name>_assets-vol:/home/frappe/frappe-bench/sites/assets \
+    --network <project-name>_default \
+    frappe/erpnext-worker:$ERPNEXT_VERSION migrate
+```
+
+Environment Variables needed:
+
+- `MAINTENANCE_MODE`: If set to `1`, this will ensure the bench is switched to maintenance mode during migration.
+- `SITES`: Optional list of sites to be migrated, separated by colon (`:`). e.g. `erp.site1.com:erp.site2.com`. If not used, all sites will be migrated by default.

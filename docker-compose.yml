@@ -28,6 +28,7 @@ services:
     volumes:
       - cert-vol:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock:ro
+    userns_mode: "host"
 
   erpnext-nginx:
     image: frappe/erpnext-nginx:${ERPNEXT_VERSION}
@@ -37,6 +38,7 @@ services:
       - FRAPPE_PY_PORT=8000
       - FRAPPE_SOCKETIO=frappe-socketio
       - SOCKETIO_PORT=9000
+      - SKIP_NGINX_TEMPLATE_GENERATION=${SKIP_NGINX_TEMPLATE_GENERATION}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.erpnext-nginx.rule=Host(${SITES})"
@@ -57,6 +59,7 @@ services:
       - REDIS_SOCKETIO=redis-socketio:6379
       - SOCKETIO_PORT=9000
       - AUTO_MIGRATE=1
+      - WORKER_CLASS=${WORKER_CLASS}
     volumes:
       - sites-vol:/home/frappe/frappe-bench/sites:rw
       - assets-vol:/home/frappe/frappe-bench/sites/assets:rw
@@ -68,6 +71,7 @@ services:
       - redis-socketio
     volumes:
       - sites-vol:/home/frappe/frappe-bench/sites:rw
+      - logs-vol:/home/frappe/frappe-bench/logs:rw
 
   erpnext-worker-default:
     image: frappe/erpnext-worker:${ERPNEXT_VERSION}
@@ -78,6 +82,7 @@ services:
       - redis-cache
     volumes:
       - sites-vol:/home/frappe/frappe-bench/sites:rw
+      - logs-vol:/home/frappe/frappe-bench/logs:rw
 
   erpnext-worker-short:
     image: frappe/erpnext-worker:${ERPNEXT_VERSION}
@@ -90,6 +95,7 @@ services:
       - redis-cache
     volumes:
       - sites-vol:/home/frappe/frappe-bench/sites:rw
+      - logs-vol:/home/frappe/frappe-bench/logs:rw
 
   erpnext-worker-long:
     image: frappe/erpnext-worker:${ERPNEXT_VERSION}
@@ -112,6 +118,7 @@ services:
       - redis-cache
     volumes:
       - sites-vol:/home/frappe/frappe-bench/sites:rw
+      - logs-vol:/home/frappe/frappe-bench/logs:rw
 
   redis-cache:
     image: redis:latest
@@ -155,6 +162,7 @@ services:
       - INSTALL_APPS=${INSTALL_APPS}
     volumes:
       - sites-vol:/home/frappe/frappe-bench/sites:rw
+      - logs-vol:/home/frappe/frappe-bench/logs:rw
 
 volumes:
   mariadb-vol:
@@ -164,3 +172,4 @@ volumes:
   assets-vol:
   sites-vol:
   cert-vol:
+  logs-vol:
